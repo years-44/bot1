@@ -1,0 +1,37 @@
+version: '3.4'
+
+services:
+  tg-dice-bot:
+    image: ghcr.io/deanxv/tg-dice-bot:latest
+    container_name: tg-dice-bot
+    restart: always
+    volumes:
+      - ./data/root:/data
+    environment:
+      - MYSQL_DSN=root:Cs8l09UpA4Yn75NgrwFbJ3Ik1u62SPxB@tcp(db:31399)/dice_bot  # 可修改此行 SQL连接信息
+      - REDIS_CONN_STRING=redis://redis
+      - TZ=Asia/Shanghai
+      - TELEGRAM_API_TOKEN=7514423680:AAFk8XgCcCdY4a8Ejp7jV44rKVUjbc3iEQM  # 必须修改此行telegram-bot的token
+    depends_on:
+      - redis
+      - db
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+
+  db:
+    image: mysql:8.2.0
+    restart: always
+    container_name: mysql
+    volumes:
+      - ./data/mysql:/var/lib/mysql  # 挂载目录，持久化存储
+    ports:
+      - '31399:31399'
+    environment:
+      TZ: Asia/Shanghai   # 可修改默认时区
+      MYSQL_ROOT_PASSWORD: 'root@Cs8l09UpA4Yn75NgrwFbJ3Ik1u62SPxB' # 可修改此行 root用户名 密码
+      MYSQL_USER: root   # 可修改初始化专用用户用户名
+      MYSQL_PASSWORD: 'Cs8l09UpA4Yn75NgrwFbJ3Ik1u62SPxB'    # 可修改初始化专用用户密码
+      MYSQL_DATABASE: dice_bot   # 可修改初始化专用数据库
